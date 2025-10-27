@@ -1,0 +1,36 @@
+<header class="bg-white shadow-sm">
+  <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <!-- Logo / Site Name -->
+    <h1 class="text-xl font-semibold text-blue-700">
+      <a href="/">College Transport</a>
+    </h1>
+
+    <!-- Navigation Links -->
+    <nav class="flex items-center space-x-6">
+      <a href="/" class="<%= page === 'home' ? 'text-blue-700 font-semibold' : 'text-gray-700 hover:text-blue-700' %>">Home</a>
+      <a href="/routes" class="<%= page === 'routes' ? 'text-blue-700 font-semibold' : 'text-gray-700 hover:text-blue-700' %>">Routes</a>
+      <a href="/schedules" class="<%= page === 'schedules' ? 'text-blue-700 font-semibold' : 'text-gray-700 hover:text-blue-700' %>">Schedules</a>
+      <a href="/tracking" class="<%= page === 'track' ? 'text-blue-700 font-semibold' : 'text-gray-700 hover:text-blue-700' %>">Real-time Tracking</a>
+      <a href="/profile" class="<%= page === 'profile' ? 'text-blue-700 font-semibold' : 'text-gray-700 hover:text-blue-700' %>">Profile</a>
+
+      <% if (user && user.role === 'admin') { %>
+        <!-- 👇 Admin-only links -->
+        <a href="/admin/dashboard" class="text-gray-700 hover:text-blue-700">Admin Dashboard</a>
+        <a href="/admin/drivers" class="text-gray-700 hover:text-blue-700">Driver Panel</a>
+      <% } %>
+    </nav>
+
+    <!-- Auth Buttons -->
+    <div class="flex items-center space-x-3">
+      <% if (user) { %>
+        <span class="text-gray-600">Hi, <%= user.name %> (<%= user.role %>)</span>
+        <form action="/logout" method="POST" class="inline">
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/login" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Login</a>
+        <a href="/register" class="text-blue-700 hover:underline bg-gray-200 px-4 py-2 rounded-md hover:bg-gray-300">Register</a>
+      <% } %>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>New Route</title><link rel="stylesheet" href="/css/styles.css"></head><body>
+  <%- include('partials/header') %>
+  <div class="container">
+    <h2>Create Route</h2>
+    <form method="post" action="/routes">
+      <div class="form-row"><label>Title</label><input name="title" required /></div>
+      <div class="form-row"><label>Code</label><input name="code" /></div>
+      <div class="form-row"><label>Driver</label>
+        <select name="driver">
+          <option value="">-- Unassigned --</option>
+          <% drivers.forEach(function(d){ %>
+            <option value="<%= d._id %>"><%= d.name %> (<%= d.email %>)</option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-row"><label>Stops (JSON format)</label>
+        <textarea name="stopsJson" placeholder='[{"name":"Gate A","lat":12.97,"lng":77.59,"sequence":1}]'></textarea>
+      </div>
+      <button class="btn" type="submit">Create</button>
+    </form>
+  </div>
+</body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || "My Profile - College Transport" %></title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <!-- Include header -->
+  <%- include('partials/header', { user: currentUser, page: 'profile' }) %>
+
+  <!-- HERO SECTION -->
+  <section class="bg-blue-600 text-white py-14 text-center">
+    <div class="max-w-5xl mx-auto px-6">
+      <h1 class="text-4xl font-bold mb-2">My Profile</h1>
+      <p class="text-blue-100 text-lg">View and manage your transport details</p>
+    </div>
+  </section>
+
+  <!-- PROFILE CARD -->
+  <section class="py-12 max-w-5xl mx-auto px-6">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+      <div class="flex flex-col md:flex-row items-center gap-8">
+
+        <!-- Profile Image -->
+        <div class="flex-shrink-0">
+          <img src="<%= currentUser?.profilePic || '/images/default-profile.png' %>"
+               alt="Profile Picture"
+               class="w-40 h-40 rounded-full border-4 border-blue-500 object-cover" />
+        </div>
+
+        <!-- Profile Info -->
+        <div class="flex-1 text-left">
+          <% if (currentUser) { %>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4"><%= currentUser.name %></h2>
+
+            <div class="grid md:grid-cols-2 gap-4 text-gray-700">
+              <p><strong>ID:</strong> <%= currentUser.studentId || 'SJB2025001' %></p>
+              <p><strong>Course:</strong> <%= currentUser.course || 'B.E - CSE' %></p>
+              <p><strong>College:</strong> <%= currentUser.college || 'SJB Institute of Technology' %></p>
+              <p><strong>Year:</strong> <%= currentUser.year || '3rd Year' %></p>
+              <p><strong>Semester:</strong> <%= currentUser.sem || '6th Semester' %></p>
+              <p><strong>Email:</strong> <%= currentUser.email || 'student@sjbit.edu.in' %></p>
+              <p><strong>Phone:</strong> <%= currentUser.phone || '+91 98765 43210' %></p>
+              <p><strong>Route Assigned:</strong> 
+                <span class="text-blue-600 font-semibold"><%= currentUser.route || 'Route 12 - Kengeri' %></span>
+              </p>
+            </div>
+          <% } else { %>
+            <p class="text-gray-600">You are not logged in. Please <a href="/login" class="text-blue-600 underline">login</a>.</p>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <% if (currentUser) { %>
+        <div class="mt-10 flex flex-col sm:flex-row justify-between gap-4">
+          <form action="/profile/update" method="POST" class="flex-1">
+            <button type="submit" 
+                    class="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700">
+              Edit Profile
+            </button>
+          </form>
+
+          <form action="/profile/request-route-change" method="POST" class="flex-1">
+            <button type="submit" 
+                    class="w-full sm:w-auto bg-yellow-500 text-white px-6 py-3 rounded-md font-medium hover:bg-yellow-600">
+              Request Route Change
+            </button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- Include footer -->
+  <%- include('partials/footer') %>
+
+  <script> feather.replace(); </script>
+</body>
+</html>

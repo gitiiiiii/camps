@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title><%= route.title %></title><link rel="stylesheet" href="/css/styles.css"></head><body>
+  <%- include('partials/header') %>
+  <div class="container">
+    <h2><%= route.title %> <small>(<%= route.code %>)</small></h2>
+    <div>Driver: <%= route.driver ? route.driver.name : 'Unassigned' %></div>
+    <h3>Stops</h3>
+    <% if (route.stops.length===0) { %><div class="card">No stops.</div><% } %>
+    <% route.stops.forEach(s=>{ %>
+      <div class="card"><strong><%= s.sequence %>. <%= s.name %></strong><div>Lat: <%= s.lat %> Lng: <%= s.lng %></div></div>
+    <% }) %>
+  </div>
+</body></html>

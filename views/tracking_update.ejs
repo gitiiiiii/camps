@@ -1,0 +1,24 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Driver Update</title><link rel="stylesheet" href="/css/styles.css"></head><body>
+  <%- include('partials/header') %>
+  <div class="container">
+    <h2>Update My Location</h2>
+    <% if (routes.length===0) { %>
+      <div class="card">No routes assigned to you. Contact admin.</div>
+    <% } %>
+    <form method="post" action="/tracking/update">
+      <div class="form-row"><label>Route</label>
+        <select name="route">
+          <% routes.forEach(function(r){ %>
+            <option value="<%= r._id %>"><%= r.title %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-row"><label>Latitude</label><input name="lat" required /></div>
+      <div class="form-row"><label>Longitude</label><input name="lng" required /></div>
+      <div class="form-row"><label>Note</label><input name="note" /></div>
+      <button class="btn" type="submit">Send Update</button>
+    </form>
+    <% if (query && query.success) { %><div class="card">Update sent!</div><% } %>
+  </div>
+</body></html>

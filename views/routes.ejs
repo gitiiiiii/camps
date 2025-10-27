@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bus Routes - College Transport</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <!-- HEADER -->
+  <%- include('partials/header', { user: currentUser, page: 'routes' }) %>
+
+  <!-- PAGE TITLE -->
+  <section class="bg-blue-600 text-white py-12 text-center">
+    <h1 class="text-4xl font-bold">Bus Routes</h1>
+    <p class="text-blue-100 mt-2">Explore all available routes and stops</p>
+  </section>
+
+  <!-- ROUTE LIST -->
+  <section class="py-12">
+    <div class="max-w-5xl mx-auto px-6">
+      <% if (routes && routes.length > 0) { %>
+        <% routes.forEach((route, i) => { %>
+          <div class="mb-8 bg-white p-6 rounded-lg shadow border border-gray-200">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-2xl font-bold text-blue-700">
+                <i data-feather="map-pin" class="inline-block w-5 h-5 mr-2 text-blue-600"></i>
+                Route <%= i + 1 %>: <%= route.name %>
+              </h2>
+              <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm font-medium">
+                <%= route.stops ? route.stops.length : 0 %> Stops
+              </span>
+            </div>
+
+            <% if (route.stops && route.stops.length > 0) { %>
+              <ul class="divide-y divide-gray-200">
+                <% route.stops.sort((a, b) => a.sequence - b.sequence).forEach((stop) => { %>
+                  <li class="py-2 flex items-center justify-between">
+                    <div>
+                      <span class="font-medium text-gray-800"><%= stop.sequence %>. <%= stop.name %></span>
+                      <p class="text-gray-500 text-sm">(Lat: <%= stop.lat %>, Lng: <%= stop.lng %>)</p>
+                    </div>
+                    <i data-feather="navigation" class="w-4 h-4 text-blue-600"></i>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } else { %>
+              <p class="text-gray-500 italic">No stops available for this route.</p>
+            <% } %>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="text-center py-12 bg-white rounded-lg shadow">
+          <i data-feather="alert-circle" class="w-10 h-10 mx-auto text-gray-400"></i>
+          <p class="text-gray-600 mt-4">No routes found. Please check back later.</p>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <%- include('partials/footer') %>
+  <script> feather.replace(); </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Tracking - SJB Transport</title>
+
+  <!-- Tailwind & Leaflet -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+  <style>
+    #map {
+      height: 500px;
+      border-radius: 10px;
+      z-index: 0;
+    }
+    .route-marker {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #3b82f6;
+      border: 2px solid white;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Include navbar -->
+  <%- include('partials/header', { user: currentUser, page: 'tracking' }) %>
+
+  <section class="py-10 max-w-7xl mx-auto px-6">
+    <h1 class="text-3xl font-bold text-blue-700 mb-6">🚍 Live Bus Tracking</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Map -->
+      <div class="lg:col-span-2 bg-white rounded-lg shadow p-4">
+        <div id="map"></div>
+      </div>
+
+      <!-- Sidebar info -->
+      <div class="bg-white shadow rounded-lg p-4">
+        <h3 class="text-lg font-semibold mb-4 text-gray-800">Active Buses</h3>
+        <ul id="bus-list" class="space-y-3">
+          <!-- Dynamic bus info will appear here -->
+        </ul>
+      </div>
+    </div>
+  </section>
+  <h2 class="text-xl font-bold mb-4">Live Bus Tracking</h2>
+<div id="map" style="height: 400px;"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+socket.on('busLocationUpdated', ({ driverId, latitude, longitude }) => {
+  console.log(`🚌 Bus ${driverId} updated: (${latitude}, ${longitude})`);
+});
+</script>
+
+
+
+  <!-- Include footer -->
+  <%- include('partials/footer') %>
+
+  <script>
+    feather.replace();
+
+    // Initialize map
+    const map = L.map('map').setView([12.9063, 77.5661], 14); // Default near SJB Institute
+
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Custom bus marker
+    const busIcon = L.divIcon({ className: 'route-marker', iconSize: [20, 20] });
+
+    // Initial bus data (can be fetched from backend later)
+    const buses = [
+      { id: 101, name: 'Bus 101 - North Route', lat: 12.9063, lng: 77.5661, next: 'Main Library' },
+      { id: 102, name: 'Bus 102 - South Route', lat: 12.909, lng: 77.57, next: 'Science Block' },
+      { id: 103, name: 'Bus 103 - East Route', lat: 12.904, lng: 77.562, next: 'Canteen' }
+    ];
+
+    const busMarkers = {};
+
+    // Add buses to map
+    buses.forEach(bus => {
+      const marker = L.marker([bus.lat, bus.lng], { icon: busIcon }).addTo(map).bindPopup(bus.name);
+      busMarkers[bus.id] = marker;
+    });
+
+    // Display in sidebar
+    const busList = document.getElementById('bus-list');
+    buses.forEach(bus => {
+      const li = document.createElement('li');
+      li.classList.add('p-3', 'border', 'rounded-md', 'hover:bg-blue-50', 'transition');
+      li.innerHTML = `
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="font-medium text-gray-800">${bus.name}</p>
+            <p class="text-sm text-gray-500">Next Stop: ${bus.next}</p>
+          </div>
+          <span class="text-green-500 text-sm font-semibold">On Time</span>
+        </div>`;
+      busList.appendChild(li);
+    });
+
+    // Simulate live movement
+    setInterval(() => {
+      buses.forEach(bus => {
+        bus.lat += (Math.random() - 0.5) * 0.0005;
+        bus.lng += (Math.random() - 0.5) * 0.0005;
+
+        // Update marker
+        const marker = busMarkers[bus.id];
+        marker.setLatLng([bus.lat, bus.lng]);
+      });
+    }, 3000);
+  </script>
+</body>
+</html>
