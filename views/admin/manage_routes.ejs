@@ -1,0 +1,63 @@
+<html>
+    <body>
+<%- include('../partials/header', { user: user, page: 'dashboard' }) %>
+
+<div class="page-header">
+  <h1>Manage Routes</h1>
+  <p>Define new bus routes.</p>
+</div>
+
+<div class="container" style="display: flex; flex-wrap: wrap; gap: 2rem;">
+
+  <!-- Add Route Form -->
+  <div style="flex: 1; min-width: 300px;">
+    <div class="content-card" style="padding: 2.5rem;">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--primary-blue);">Add New Route</h3>
+      <form action="/admin/routes" method="POST">
+        <div class="form-group">
+          <label for="name">Route Name</label>
+          <input type="text" id="name" name="name" required placeholder="e.g., Campus to Kengeri">
+        </div>
+        <button type="submit" class="auth-button">Add Route</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Existing Routes Table (UPDATED) -->
+  <div style="flex: 2; min-width: 400px;">
+    <div class="content-card">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Existing Routes</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Stops</th>
+            <th>Actions</th> <!-- NEW -->
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!routes || routes.length === 0) { %>
+            <tr><td colspan="3">No routes found.</td></tr> <!-- Colspan changed to 3 -->
+          <% } else { %>
+            <% routes.forEach(r => { %>
+              <tr>
+                <td><%= r.name %></td>
+                <td><%= r.stops ? r.stops.length : 0 %></td>
+                <!-- NEW "Edit" Button -->
+                <td>
+                  <a href="/admin/routes/edit/<%= r._id %>" class="btn" style="background-color: #ffc107; color: black; padding: 0.5rem 1rem; text-decoration: none;">
+                    Edit
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+    </body>
+</html>

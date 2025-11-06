@@ -1,0 +1,48 @@
+<%- include('../partials/header', { user: user, page: 'dashboard' }) %>
+
+<!-- Blue Hero Section -->
+<div class="page-header" style="background-color: #0d6efd; color: white; padding: 3rem 1rem; text-align: center;">
+  <h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">Driver Dashboard</h1>
+  <p style="font-size: 1.25rem; opacity: 0.9;">Welcome, <%= user.name %>!</p>
+</div>
+
+<div class="container" style="max-width: 700px; margin: 2rem auto; padding: 0 1rem;">
+  
+  <% if (locals.schedule) { %>
+    <!-- Assigned Schedule Card -->
+    <div class="content-card" style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 2rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: #333;">Your Assigned Schedule</h3>
+      <h4 style="font-size: 1.25rem; font-weight: 500;"><%= schedule.route.name %></h4>
+      <p style="color: #6c757d; margin-top: 0.5rem;">
+        <strong>Vehicle:</strong> <%= schedule.vehicle.vehicleNumber %> (<%= schedule.vehicle.model %>)<br>
+        <strong>Time:</strong> <%= schedule.departureTime %> - <%= schedule.estimatedArrivalTime %><br>
+      </p>
+      <!-- This hidden input is VITAL for the JS file -->
+      <input type="hidden" id="routeId" value="<%= schedule.route._id %>">
+    </div>
+
+    <!-- Live Tracking Card -->
+    <div class="content-card" style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 2rem; text-align: center;">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Live Tracking</h3>
+      <p style="color: #6c757d; margin-bottom: 1.5rem;">Press "Start Tracking" to begin sending your location.</p>
+      
+      <button id="startTracking" class="auth-button" style="background-color: #198754; width: auto; padding: 0.75rem 2rem;">Start Tracking</button>
+      <button id="stopTracking" class="auth-button" style="background-color: #dc3545; display: none; width: auto; padding: 0.75rem 2rem;">Stop Tracking</button>
+      
+      <div id="statusMessage" style="margin-top: 1.5rem; font-weight: 500; font-size: 1rem;"></div>
+    </div>
+
+  <% } else { %>
+    <!-- No Schedule Warning -->
+    <div class="content-card" style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 2rem;">
+      <p style="text-align: center; font-size: 1.1rem; color: #dc3545;">
+        You do not have a schedule assigned. Please contact your administrator.
+      </p>
+    </div>
+  <% } %>
+</div>
+
+<!-- Load the driver tracking script -->
+<script src="/js/driver_tracking.js"></script>
+
+<%- include('../partials/footer') %>

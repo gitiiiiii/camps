@@ -1,0 +1,91 @@
+<html>
+    <body>
+        <%- include('../partials/header', { user: user, page: 'dashboard' }) %>
+
+<div class="page-header">
+  <h1>Manage Schedules</h1>
+  <p>Assign drivers and vehicles to routes and times.</p>
+</div>
+
+<div class="container" style="display: flex; flex-wrap: wrap; gap: 2rem;">
+
+  <!-- Create Schedule Form -->
+  <div style="flex: 1; min-width: 300px;">
+    <div class="content-card" style="padding: 2.5rem;">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--primary-blue);">Create Schedule</h3>
+      <form action="/admin/schedules" method="POST">
+        <div class="form-group">
+          <label for="route">Route</label>
+          <select id="route" name="route" required>
+            <option value="">-- Select Route --</option>
+            <% routes.forEach(r => { %>
+              <option value="<%= r._id %>"><%= r.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="driver">Driver</label>
+          <select id="driver" name="driver" required>
+            <option value="">-- Select Driver --</option>
+            <% drivers.forEach(d => { %>
+              <option value="<%= d._id %>"><%= d.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="vehicle">Vehicle</label>
+          <select id="vehicle" name="vehicle" required>
+            <option value="">-- Select Vehicle --</option>
+            <% vehicles.forEach(v => { %>
+              <option value="<%= v._id %>"><%= v.vehicleNumber %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="departureTime">Departure Time</label>
+          <input type="time" id="departureTime" name="departureTime" required>
+        </div>
+        <div class="form-group">
+          <label for="estimatedArrivalTime">Est. Arrival Time</label>
+          <input type="time" id="estimatedArrivalTime" name="estimatedArrivalTime" required>
+        </div>
+        <button type="submit" class="auth-button">Create Schedule</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Current Schedules Table -->
+  <div style="flex: 2; min-width: 400px;">
+    <div class="content-card">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Current Schedules</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Route</th>
+            <th>Driver</th>
+            <th>Vehicle</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!schedules || schedules.length === 0) { %>
+            <tr><td colspan="4">No schedules found.</td></tr>
+          <% } else { %>
+            <% schedules.forEach(s => { %>
+              <tr>
+                <td><%= s.route.name %></td>
+                <td><%= s.driver.name %></td>
+                <td><%= s.vehicle.vehicleNumber %></td>
+                <td><%= s.departureTime %></td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+    </body>
+</html>

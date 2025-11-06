@@ -1,17 +1,33 @@
 const mongoose = require('mongoose');
 
-const stopSchema = new mongoose.Schema({
-  name: String,
-  lat: Number,
-  lng: Number,
-  sequence: Number
+// This is the sub-document schema for each stop
+const StopSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  lat: {
+    type: Number,
+    required: true,
+  },
+  lng: {
+    type: Number,
+    required: true,
+  },
+  sequence: {
+    type: Number,
+    required: true,
+  }
 });
 
-const routeSchema = new mongoose.Schema({
-  title: { type: String, required:true },
-  code: String,
-  stops: [stopSchema],
-  driver: { type: mongoose.Schema.Types.ObjectId, ref:'User' }
-}, { timestamps:true });
+const RouteSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  // This now uses the new StopSchema
+  stops: [StopSchema], 
+}, { timestamps: true });
 
-module.exports = mongoose.model('Route', routeSchema);
+module.exports = mongoose.model('Route', RouteSchema);

@@ -1,44 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Schedules - College Transport</title>
-  <link rel="stylesheet" href="/css/styles.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schedules - College Transport</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 <body class="bg-gray-50 font-sans">
 
-  <%- include('partials/header', { user: currentUser, page: 'schedules' }) %>
+  <%- include('partials/header', { user: currentUser, page: 'schedules' }) %>
 
-  <section class="py-16 bg-white text-center">
-    <div class="max-w-6xl mx-auto px-6">
-      <h2 class="text-4xl font-bold text-blue-700 mb-6">Bus Schedules</h2>
-      <p class="text-gray-600 mb-10">Check out daily bus timings and departures.</p>
+  <section class="py-16 bg-white text-center">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-4xl font-bold text-blue-700 mb-6">Bus Schedules</h2>
+      <p class="text-gray-600 mb-10">Check out daily bus timings and departures.</p>
 
-      <table class="w-full border rounded-lg">
-        <thead class="bg-blue-600 text-white">
-          <tr>
-            <th class="p-3">Route</th>
-            <th class="p-3">Departure</th>
-            <th class="p-3">Arrival</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% schedules.forEach(s => { %>
-            <tr class="border-b hover:bg-gray-50">
-              <td class="p-3"><%= s.route %></td>
-              <td class="p-3"><%= s.departure %></td>
-              <td class="p-3"><%= s.arrival %></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-  </section>
+      <table class="w-full border rounded-lg">
+        <thead class="bg-blue-600 text-white">
+          <tr>
+            <th class="p-3">Route</th>
+          <th class="p-3">Day</th> <!-- Added Day -->
+            <th class="p-3">Departure</th>
+            <th class="p-3">Arrival</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% schedules.forEach(s => { %>
+*           <tr class="border-b hover:bg-gray-50">
+              <!-- ✅ FIX: Changed s.route to s.route.name -->
+              <td class="p-3"><%= s.route ? s.route.name : 'Invalid Route' %></td>
+              
+              <!-- ✅ FIX: Added s.day -->
+              <td class="p-3"><%= s.day %></td>
 
-  <%- include('partials/footer') %>
-  <script>feather.replace();</script>
+              <!-- ✅ FIX: Changed s.departure to s.departureTime -->
+              <td class="p-3"><%= s.departureTime %></td>
+              
+              <!-- ✅ FIX: Changed s.arrival to s.arrivalTime -->
+              <td class="p-3"><%= s.arrivalTime %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+  <script>feather.replace();</script>
 </body>
 </html>

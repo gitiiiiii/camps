@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - College Transport</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <!-- Added Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Added Feather Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <%- include('partials/header', { user: currentUser, page: 'profile' }) %>
+
+<!-- Styles copied from login.ejs to match -->
+<style>
+  .auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    background-color: #f8f9fa;
+  }
+  .auth-card {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+  }
+  .auth-card h2 {
+    color: #0d6efd;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .form-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: #f1f3f5;
+  }
+  .form-group select:disabled {
+    background-color: #e9ecef;
+    opacity: 0.7;
+  }
+  .auth-button {
+    width: 100%;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #0d6efd;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+</style>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Request Route Change</h2>
+    
+    <!-- 
+      ✅ THE FIX IS HERE:
+      The 'action' attribute must match your route file.
+      It should be "/profile/request-change"
+    -->
+    <form action="/profile/request-change" method="POST">
+      <div class="form-group">
+        <label for="newRoute">Select New Route</label>
+        <select id="route-select" name="newRouteId" class="form-group" required>
+          <option value="" selected disabled>-- Please select a route --</option>
+          <% routes.forEach(route => { %>
+            <option value="<%= route._id %>"><%= route.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="newStop">Select Your Stop</label>
+        <select id="stop-select" name="newStopName" class="form-group" required disabled>
+          <option value="" selected disabled>-- Select route first --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="reason">Reason for Change (Optional)</label>
+        <textarea id="reason" name="reason" rows="3"></textarea>
+      </div>
+
+      <button type="submit" class="auth-button">Submit Request</button>
+    </form>
+  </div>
+</div>
+
+<!-- This script enables the dependent dropdowns -->
+<script type="application/json" id="routes-data">
+  <%- JSON.stringify(routes) %>
+</script>
+
+<script>
+  const routesDataJSON = document.getElementById('routes-data').textContent;
+  const routesData = JSON.parse(routesDataJSON);
+  
+  const routeSelect = document.getElementById('route-select');
+  const stopSelect = document.getElementById('stop-select');
+
+  routeSelect.addEventListener('change', (e) => {
+    const selectedRouteId = e.target.value;
+    const selectedRoute = routesData.find(r => r._id === selectedRouteId);
+
+    stopSelect.innerHTML = '<option value="" selected disabled>-- Select your stop --</option>';
+
+    if (selectedRoute && selectedRoute.stops) {
+      selectedRoute.stops.forEach(stop => {
+        const option = document.createElement('option');
+        option.value = stop.name; 
+        option.textContent = `${stop.sequence}. ${stop.name}`;
+        stopSelect.appendChild(option);
+      });
+      stopSelect.disabled = false;
+    } else {
+      stopSelect.disabled = true;
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>
+<!-- Initialize Feather Icons -->
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

@@ -1,35 +1,78 @@
 const express = require('express');
 const router = express.Router();
-const Tracking = require('../models/Tracking');
-const RouteModel = require('../models/Route');
-const User = require('../models/User');
+const Route = require('../models/Route');
+const BusLocation = require('../models/BusLocation');
+const mongoose = require('mongoose');
 
-// view tracking page public (simple)
-router.get('/', async (req,res)=>{
-  const routes = await RouteModel.find();
-  res.render('tracking',{ routes });
+// This is the route that renders the page
+router.get('/', async (req, res) => {
+  try {
+    // We must fetch ALL routes here so we can:
+    // 1. Show them in the dropdown
+    // 2. Embed them in the page for the JavaScript to draw the stops
+    const allRoutes = await Route.find().lean(); // .lean() makes it faster
+    
+    res.render('tracking', { 
+      title: 'Live Tracking',
+      page: 'track', 
+      routes: allRoutes, // Pass all routes to the EJS
+      currentUser: req.session.user || null 
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
 });
 
-// driver location update form (driver must be logged in)
-router.get('/update', async (req,res)=>{
-  if (!req.session.user || req.session.user.role !== 'driver') return res.redirect('/login');
-  // get routes assigned to this driver
-  const routes = await RouteModel.find({ driver: req.session.user.id });
-  res.render('tracking_update',{ routes });
-});
+// This API is called by the JavaScript to get bus locations
+router.get('/api/locations/:routeId', async (req, res) => {
+  try {
+    const { routeId } = req.params;
+    let matchQuery = {};
 
-router.post('/update', async (req,res)=>{
-  if (!req.session.user || req.session.user.role !== 'driver') return res.redirect('/login');
-  const { route, lat, lng, note } = req.body;
-  const t = new Tracking({ route, driver: req.session.user.id, lat: parseFloat(lat), lng: parseFloat(lng), note });
-  await t.save();
-  res.redirect('/tracking/update?success=1');
-});
+    // If a specific route is selected, create a match query for it
+    if (routeId !== 'all') {
+      matchQuery = { route: new mongoose.Types.ObjectId(routeId) };
+    }
 
-// get latest tracking per route (AJAX)
-router.get('/latest/:routeId', async (req,res)=>{
-  const data = await Tracking.find({ route: req.params.routeId }).sort({ timestamp:-1 }).limit(20);
-  res.json(data);
+    const latestLocations = await BusLocation.aggregate([
+      { $match: matchQuery }, // 1. Filter by route (if not 'all')
+      { $sort: { createdAt: -1 } }, // 2. Get newest locations first
+      { $group: { // 3. Get only the *latest* location for each driver
+          _id: '$driver', 
+          doc: { $first: '$$ROOT' }
+      }},
+      { $replaceRoot: { newRoot: '$doc' } }, // 4. Clean up the document
+      { $lookup: { // 5. Join with User model to get driver name
+          from: 'users', 
+          localField: 'driver',
+          foreignField: '_id',
+          as: 'driverInfo'
+      }},
+      { $lookup: { // 6. Join with Route model to get route name
+          from: 'routes', 
+          localField: 'route',
+          foreignField: '_id',
+          as: 'routeInfo'
+      }},
+      { $unwind: '$driverInfo' }, // 7. Unpack the driverInfo array
+      { $unwind: { path: '$routeInfo', preserveNullAndEmptyArrays: true } }, // 8. Unpack routeInfo
+      { $addFields: { // 9. Rename 'routeInfo' to 'route'
+          route: '$routeInfo'
+      }},
+      { $project: { // 10. Remove private data
+          'driverInfo.password': 0,
+          'driverInfo.email': 0,
+          'routeInfo': 0 
+      }}
+    ]);
+    
+    res.json(latestLocations);
+  } catch (err) {
+    console.error('API Error:', err);
+    res.status(500).json({ error: 'Server Error' });
+  }
 });
 
 module.exports = router;

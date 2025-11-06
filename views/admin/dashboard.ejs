@@ -6,24 +6,82 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
-  <%- include('../partials/header') %>
+  <%- include('../partials/header', { user: user, page: 'dashboard' }) %>
 
-  <div class="max-w-5xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-    <h1 class="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
+<style>
+  .admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
 
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-center">
-      <a href="/admin/drivers" class="bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700">
-        🚍 Driver Panel
-      </a>
-      <a href="/routes" class="bg-green-600 text-white py-4 rounded-lg hover:bg-green-700">
-        🗺️ Routes
-      </a>
-      <a href="/schedules" class="bg-purple-600 text-white py-4 rounded-lg hover:bg-purple-700">
-        ⏰ Schedules
-      </a>
-    </div>
+  .admin-card-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .admin-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    text-align: center;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+  }
+
+  .admin-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
+  }
+
+  .admin-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+  }
+</style>
+
+<div class="page-header">
+  <h1>Admin Dashboard</h1>
+  <p>Welcome, <%= user.name %>!</p>
+</div>
+
+<div class="container">
+  <div class="admin-grid">
+    <a href="/admin/users" class="admin-card-link">
+      <div class="admin-card">
+        <h3>Manage Users</h3>
+      </div>
+    </a>
+
+    <a href="/admin/vehicles" class="admin-card-link">
+      <div class="admin-card">
+        <h3>Manage Vehicles</h3>
+      </div>
+    </a>
+
+    <a href="/admin/routes" class="admin-card-link">
+      <div class="admin-card">
+        <h3>Manage Routes</h3>
+      </div>
+    </a>
+
+    <a href="/admin/schedules" class="admin-card-link">
+      <div class="admin-card">
+        <h3>Manage Schedules</h3>
+      </div>
+    </a>
+
+    <a href="/admin/requests" class="admin-card-link">
+      <div class="admin-card">
+        <h3>Route Requests</h3>
+      </div>
+    </a>
   </div>
+</div>
 
-  <%- include('../partials/footer') %>
+<%- include('../partials/footer') %>
+
 </body>
 </html>

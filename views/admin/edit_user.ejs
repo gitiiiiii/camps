@@ -1,0 +1,62 @@
+<%- include('../partials/header', { user: currentUser, page: 'dashboard' }) %>
+
+<!-- Styles copied from login.ejs to match -->
+<style>
+  .auth-container { display: flex; align-items: center; justify-content: center; padding: 4rem 1rem; background-color: #f8f9fa; }
+  .auth-card { background-color: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.07); width: 100%; max-width: 600px; text-align: center; }
+  .auth-card h2 { color: #0d6efd; font-weight: 700; font-size: 2rem; margin-bottom: 2rem; }
+  .form-group { text-align: left; margin-bottom: 1.5rem; }
+  .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333; }
+  .form-group input, .form-group select { width: 100%; padding: 0.75rem 1rem; border: 1px solid #ced4da; border-radius: 8px; background-color: #f1f3f5; box-sizing: border-box; }
+  .auth-button { width: 100%; padding: 0.85rem; border: none; border-radius: 8px; background-color: #0d6efd; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+</style>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Edit User: <%= userToEdit.name %></h2>
+    
+    <form action="/admin/users/update/<%= userToEdit._id %>" method="POST">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="<%= userToEdit.name %>" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="<%= userToEdit.email %>" required>
+      </div>
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="user" <%= userToEdit.role === 'user' ? 'selected' : '' %>>User</option>
+          <option value="driver" <%= userToEdit.role === 'driver' ? 'selected' : '' %>>Driver</option>
+          <option value="admin" <%= userToEdit.role === 'admin' ? 'selected' : '' %>>Admin</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="route">Assign Route (for Users/Drivers)</label>
+        <select id="route" name="route">
+          <option value="">-- None --</option>
+          <% allRoutes.forEach(route => { %>
+            <option 
+              value="<%= route._id %>"
+              <%= (userToEdit.route && userToEdit.route.equals(route._id)) ? 'selected' : '' %>>
+              <%= route.name %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+      
+      <!-- ✅ NEW FIELD -->
+      <div class="form-group">
+        <label for="homeStopName">Home Stop Name</label>
+        <input type="text" id="homeStopName" name="homeStopName" value="<%= userToEdit.homeStopName || '' %>" placeholder="e.g., Kengeri">
+        <small style="font-size: 0.8rem; color: #6c757d;">Must match a Stop Name from the route exactly.</small>
+      </div>
+
+      <button type="submit" class="auth-button">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

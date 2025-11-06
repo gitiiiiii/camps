@@ -1,0 +1,69 @@
+<html>
+    <body>
+<%- include('../partials/header', { user: user, page: 'dashboard' }) %>
+
+<div class="page-header">
+  <h1>Manage Vehicles</h1>
+  <p>Add or edit vehicles in the fleet.</p>
+</div>
+
+<div class="container" style="display: flex; flex-wrap: wrap; gap: 2rem;">
+
+  <!-- Add Vehicle Form -->
+  <div style="flex: 1; min-width: 300px;">
+    <div class="content-card" style="padding: 2.5rem;">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--primary-blue);">Add New Vehicle</h3>
+      
+      <!-- This form sends the data to the backend -->
+      <form action="/admin/vehicles" method="POST">
+        <div class="form-group">
+          <label for="vehicleNumber">Vehicle Number</label>
+          <input type="text" id="vehicleNumber" name="vehicleNumber" required>
+        </div>
+        <div class="form-group">
+          <label for="model">Model</label>
+          <input type="text" id="model" name="model" required>
+        </div>
+        <div class="form-group">
+          <label for="capacity">Capacity</label>
+          <input type="number" id="capacity" name="capacity" value="40" required>
+        </div>
+        <button type="submit" class="auth-button">Add Vehicle</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Existing Vehicles Table -->
+  <div style="flex: 2; min-width: 400px;">
+    <div class="content-card">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Existing Vehicles</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Model</th>
+            <th>Capacity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!vehicles || vehicles.length === 0) { %>
+            <tr><td colspan="3">No vehicles found.</td></tr>
+          <% } else { %>
+            <% vehicles.forEach(v => { %>
+              <tr>
+                <td><%= v.vehicleNumber %></td>
+                <td><%= v.model %></td>
+                <td><%= v.capacity %></td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<%- include('../partials/footer') %>
+    </body>
+</html>

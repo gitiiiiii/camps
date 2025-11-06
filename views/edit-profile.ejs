@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - College Transport</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <!-- Added Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Added Feather Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <%- include('partials/header', { user: currentUser, page: 'profile' }) %>
+
+<style>
+  .auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    background-color: #f8f9fa;
+  }
+  .auth-card {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+    width: 100%;
+    max-width: 600px; /* Made slightly wider for the form */
+    text-align: center;
+  }
+  .auth-card h2 {
+    color: #0d6efd;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  .form-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: #f1f3f5;
+  }
+  .form-group input:disabled {
+    background-color: #e9ecef;
+    opacity: 0.7;
+  }
+  .auth-button {
+    width: 100%;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #0d6efd;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+</style>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Edit Your Profile</h2>
+    
+    <form action="/profile/edit" method="POST">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="<%= currentUser.name %>" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email (cannot be changed)</label>
+        <input type="email" id="email" name="email" value="<%= currentUser.email %>" disabled>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" value="<%= currentUser.phone || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="studentId">Student ID / Faculty ID</label>
+        <input type="text" id="studentId" name="studentId" value="<%= currentUser.studentId || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="college">College</label>
+        <input type="text" id="college" name="college" value="<%= currentUser.college || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="course">Course / Department</label>
+        <input type="text" id="course" name="course" value="<%= currentUser.course || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="year">Year</label>
+        <input type="text" id="year" name="year" value="<%= currentUser.year || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="sem">Semester</label>
+        <input type="text" id="sem" name="sem" value="<%= currentUser.sem || '' %>">
+      </div>
+
+      <button type="submit" class="auth-button">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
+<!-- Initialize Feather Icons -->
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

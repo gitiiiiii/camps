@@ -1,18 +1,31 @@
 const mongoose = require('mongoose');
 
-const busLocationSchema = new mongoose.Schema({
-  driverId: {
+const BusLocationSchema = new mongoose.Schema({
+  driver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
-  busNumber: String,
-  latitude: Number,
-  longitude: Number,
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  route: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Route',
+    required: true,
+  },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+      default: 'Point',
+    },
+    coordinates: {
+      type: [Number], // Stored as [Longitude, Latitude]
+      required: true,
+    },
+  },
+}, { timestamps: true }); // 'createdAt' timestamp is crucial here
 
-module.exports = mongoose.model('BusLocation', busLocationSchema);
+// This index is very important for fast map-based queries
+BusLocationSchema.index({ location: '2dsphere' });
+
+module.exports = mongoose.model('BusLocation', BusLocationSchema);

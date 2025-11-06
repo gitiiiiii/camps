@@ -1,125 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Tracking - SJB Transport</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Tracking - College Transport</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 
-  <!-- Tailwind & Leaflet -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/feather-icons"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <!-- Leaflet CSS (for the map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhpmA9niILkSpsMphJMy+mnOKLqGshjPfbwg="
+          crossorigin=""/>
 
-  <style>
-    #map {
-      height: 500px;
-      border-radius: 10px;
-      z-index: 0;
-    }
-    .route-marker {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #3b82f6;
-      border: 2px solid white;
-    }
-  </style>
+    <style>
+        /* Fix for Leaflet map tiles not loading */
+        .leaflet-tile-container img {
+            width: 256px !important;
+            height: 256px !important;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans">
-  <!-- Include navbar -->
-  <%- include('partials/header', { user: currentUser, page: 'tracking' }) %>
+    <!-- HEADER -->
+   <%- include('partials/header', { user: currentUser, page: 'track' }) %>
 
-  <section class="py-10 max-w-7xl mx-auto px-6">
-    <h1 class="text-3xl font-bold text-blue-700 mb-6">🚍 Live Bus Tracking</h1>
+<!-- 
+  This page-specific style creates the 2-column layout 
+  and styles the map and bus list.
+-->
+<style>
+  .tracking-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .map-container {
+    flex: 2; /* Map takes 2/3 of the space */
+    min-width: 300px;
+  }
+  .list-container {
+    flex: 1; /* List takes 1/3 of the space */
+    min-width: 250px;
+  }
+  .bus-card {
+    background-color: #f8f9fa; /* Light gray */
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .bus-card h4 {
+    font-weight: 600;
+    color: var(--primary-blue);
+  }
+  .bus-card p {
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+    color: #333;
+  }
+  .bus-card .bus-updated {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+  }
+</style>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Map -->
-      <div class="lg:col-span-2 bg-white rounded-lg shadow p-4">
-        <div id="map"></div>
-      </div>
+<!-- Page Header (from your other pages) -->
+<div class="page-header">
+  <h1>Live Bus Tracking</h1>
+  <p>Select a route to see all active buses.</p>
+</div>
 
-      <!-- Sidebar info -->
-      <div class="bg-white shadow rounded-lg p-4">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800">Active Buses</h3>
-        <ul id="bus-list" class="space-y-3">
-          <!-- Dynamic bus info will appear here -->
-        </ul>
-      </div>
+<!-- Main Content -->
+<div class="container" style="max-width: 1200px;">
+  
+  <!-- Route Selector -->
+  <div class="content-card" style="margin-bottom: 1.5rem;">
+    <label for="routeSelector" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">Filter by Route:</label>
+    <select id="routeSelector" class="form-group" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--light-blue-bg);">
+      <option value="all">Show All Active Buses</option>
+      <% if (routes && routes.length > 0) { %>
+        <% routes.forEach(route => { %>
+          <option value="<%= route._id %>"><%= route.name %></option>
+        <% }) %>
+      <% } %>
+    </select>
+  </div>
+
+  <!-- Tracking Layout -->
+  <div class="tracking-layout">
+    
+    <!-- 
+      ✅ THE FIX IS HERE:
+      It now says class="map-container..." instead of "class."
+    -->
+    <div class="map-container content-card" style="padding: 1rem;">
+      <div id="map" style="height: 600px; border-radius: 8px;"></div>
     </div>
-  </section>
-  <h2 class="text-xl font-bold mb-4">Live Bus Tracking</h2>
-<div id="map" style="height: 400px;"></div>
 
+    <!-- Active Buses Column -->
+    <div class="list-container content-card" style="padding: 1.5rem;">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Active Buses</h3>
+      
+      <div id="active-bus-list">
+        <!-- Bus cards will be added here by JavaScript -->
+      </div>
+      
+      <div id="loading-state" style="text-align: center; padding: 2rem; color: #6c757d;">
+        <p>Waiting for live bus data...</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- This is the hidden template for the bus cards -->
+<template id="bus-card-template">
+  <div class="bus-card" data-bus-id="">
+    <h4 class="bus-name">Driver Name</h4>
+    <p class="bus-route">Route Name</p>
+    <p class="bus-updated">Last update: ...</p>
+  </div>
+</template>
+
+
+<!-- Socket.IO & Leaflet scripts -->
 <script src="/socket.io/socket.io.js"></script>
-<script>
-const socket = io();
-socket.on('busLocationUpdated', ({ driverId, latitude, longitude }) => {
-  console.log(`🚌 Bus ${driverId} updated: (${latitude}, ${longitude})`);
-});
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- This "data island" embeds all route data into the page -->
+<script type="application/json" id="routes-data">
+  <%- JSON.stringify(routes) %>
 </script>
 
+<!-- This script MUST be after the data island -->
+<script src="/js/tracking_map.js"></script>
 
+<%- include('partials/footer') %>
 
-  <!-- Include footer -->
-  <%- include('partials/footer') %>
+    <!-- Leaflet JS (must be before map script) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
 
-  <script>
-    feather.replace();
+    <!-- Socket.IO Client -->
+    <script src="/socket.io/socket.io.js"></script>
 
-    // Initialize map
-    const map = L.map('map').setView([12.9063, 77.5661], 14); // Default near SJB Institute
+    <!-- Your Custom Map Script -->
+    <script src="/js/tracking_map.js"></script>
 
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Custom bus marker
-    const busIcon = L.divIcon({ className: 'route-marker', iconSize: [20, 20] });
-
-    // Initial bus data (can be fetched from backend later)
-    const buses = [
-      { id: 101, name: 'Bus 101 - North Route', lat: 12.9063, lng: 77.5661, next: 'Main Library' },
-      { id: 102, name: 'Bus 102 - South Route', lat: 12.909, lng: 77.57, next: 'Science Block' },
-      { id: 103, name: 'Bus 103 - East Route', lat: 12.904, lng: 77.562, next: 'Canteen' }
-    ];
-
-    const busMarkers = {};
-
-    // Add buses to map
-    buses.forEach(bus => {
-      const marker = L.marker([bus.lat, bus.lng], { icon: busIcon }).addTo(map).bindPopup(bus.name);
-      busMarkers[bus.id] = marker;
-    });
-
-    // Display in sidebar
-    const busList = document.getElementById('bus-list');
-    buses.forEach(bus => {
-      const li = document.createElement('li');
-      li.classList.add('p-3', 'border', 'rounded-md', 'hover:bg-blue-50', 'transition');
-      li.innerHTML = `
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="font-medium text-gray-800">${bus.name}</p>
-            <p class="text-sm text-gray-500">Next Stop: ${bus.next}</p>
-          </div>
-          <span class="text-green-500 text-sm font-semibold">On Time</span>
-        </div>`;
-      busList.appendChild(li);
-    });
-
-    // Simulate live movement
-    setInterval(() => {
-      buses.forEach(bus => {
-        bus.lat += (Math.random() - 0.5) * 0.0005;
-        bus.lng += (Math.random() - 0.5) * 0.0005;
-
-        // Update marker
-        const marker = busMarkers[bus.id];
-        marker.setLatLng([bus.lat, bus.lng]);
-      });
-    }, 3000);
-  </script>
+    <!-- Init Feather Icons -->
+    <script>
+        feather.replace();
+    </script>
 </body>
 </html>

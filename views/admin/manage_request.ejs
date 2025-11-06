@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<%- include('../partials/header', { user: currentUser, page: 'dashboard' }) %>
+
+<div class="page-header">
+  <h1>Manage Route Requests</h1>
+  <p>Approve or reject pending requests from users.</p>
+</div>
+
+<div class="container">
+  <div class="content-card">
+    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Pending Requests</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Current Route</th>
+          <th>Reason</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!requests || requests.length === 0) { %>
+          <tr><td colspan="4" style="text-align: center;">No pending requests.</td></tr>
+        <% } else { %>
+          <% requests.forEach(req => { %>
+            <tr>
+              <td><%= req.user.name %> (<%= req.user.email %>)</td>
+              <td><%= req.currentRoute ? req.currentRoute.name : 'N/A' %></td>
+              <td><%= req.reason %></td>
+              <td style="display: flex; gap: 0.5rem;">
+                <!-- Approve Form -->
+                <form action="/admin/requests/approve/<%= req._id %>" method="POST">
+                  <button type="submit" class="btn" style="background-color: #198754; color: white; border: none; cursor: pointer;">Approve</button>
+                </form>
+                <!-- Reject Form -->
+                <form action="/admin/requests/reject/<%= req._id %>" method="POST">
+                  <button type="submit" class="btn" style="background-color: #dc3545; color: white; border: none; cursor: pointer;">Reject</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+</body>
+
+
+</html>

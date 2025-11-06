@@ -1,41 +1,99 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
-// register (students & faculty)
-router.get('/register', (req,res)=> res.render('register'));
-router.post('/register', async (req,res)=>{
+// --- Registration Routes ---
+
+// Show the register page
+router.get('/register', (req, res) => {
+  res.render('register', { page: 'register' });
+});
+
+// Handle registration form submission (UPDATED)
+router.post('/register', async (req, res) => {
+  // 1. Get the new 'phone' field from the form
+  const { name, email, password, role, phone } = req.body;
+  
   try {
-    const { name,email,password,role,phone } = req.body;
-    if (!name||!email||!password||!role) return res.redirect('/register?error=Missing+fields');
-    const exists = await User.findOne({ email });
-    if (exists) return res.redirect('/register?error=User+exists');
-    const hash = await bcrypt.hash(password,10);
-    const user = new User({ name,email,password:hash,role,phone });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.redirect('/register?error=email-taken');
+    }
+    
+    // 2. Convert 'student' or 'faculty' to the 'user' role
+    let userRole = 'user'; // Default
+    if (role === 'admin' || role === 'driver') {
+      // This form doesn't allow this, but good to handle
+      userRole = role;
+    }
+
+    const user = new User({ 
+      name, 
+      email, 
+      password, 
+      phone, // 3. Save the phone number
+      role: userRole // 4. Save the converted role
+    });
+    
+    // The 'pre-save' hook in User.js will hash the password
     await user.save();
-    req.session.user = { id: user._id, name: user.name, email: user.email, role: user.role };
-    res.redirect('/');
-  } catch(err){ console.error(err); res.redirect('/register?error=Server'); }
+    
+    res.redirect('/login');
+  } catch (err) {
+    console.error(err);
+    res.redirect('/register?error=server');
+  }
 });
 
-// login
-router.get('/login', (req,res)=> res.render('login'));
-router.post('/login', async (req,res)=>{
+// --- Login Routes ---
+
+// Show the login page
+router.get('/login', (req, res) => {
+  res.render('login', { page: 'login' });
+});
+
+// Handle login form submission
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.redirect('/login?error=Invalid+credentials');
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return res.redirect('/login?error=Invalid+credentials');
-    req.session.user = { id: user._id, name: user.name, email: user.email, role: user.role };
-    res.redirect('/');
-  } catch(err){ console.error(err); res.redirect('/login?error=Server'); }
+    
+    if (!user || !(await user.comparePassword(password))) {
+      return res.redirect('/login?error=invalid');
+    }
+
+    // Save user to session
+    req.session.user = user;
+
+    // Redirect based on role
+    switch (user.role) {
+      case 'admin':
+        res.redirect('/admin/dashboard');
+        break;
+      case 'driver':
+        res.redirect('/driver/dashboard');
+        break;
+      case 'user':
+      default:
+        res.redirect('/profile');
+    }
+  } catch (err) {
+    console.error(err);
+    res.redirect('/login?error=server');
+  }
 });
 
-// logout
-router.post('/logout', (req,res)=>{
-  req.session.destroy(()=> res.redirect('/'));
+// --- Logout Route ---
+
+router.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Session destroy error:', err);
+      return res.redirect('/');
+    }
+    res.clearCookie('connect.sid'); 
+    res.redirect('/');
+  });
 });
 
 module.exports = router;

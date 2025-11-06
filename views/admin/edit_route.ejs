@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - College Transport</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <!-- Added Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Added Feather Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <%- include('../partials/header', { user: user, page: 'dashboard' }) %>
+
+<div class="page-header">
+  <h1>Edit Route</h1>
+  <p>Update the route name and manage its stops.</p>
+</div>
+
+<div class="container" style="display: flex; flex-wrap: wrap; gap: 2rem;">
+
+  <!-- Column 1: Edit Forms -->
+  <div style="flex: 1; min-width: 300px;">
+    
+    <!-- Edit Name Form -->
+    <div class="content-card" style="padding: 2.5rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--primary-blue);">Update Route Name</h3>
+      <form action="/admin/routes/update/<%= route._id %>" method="POST">
+        <div class="form-group">
+          <label for="name">Route Name</label>
+          <input type="text" id="name" name="name" value="<%= route.name %>" required>
+        </div>
+        <button type="submit" class="auth-button">Save Name Change</button>
+      </form>
+    </div>
+
+    <!-- Add Stop Form -->
+    <div class="content-card" style="padding: 2.5rem;">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--primary-blue);">Add New Stop</h3>
+      <form action="/admin/routes/add-stop/<%= route._id %>" method="POST">
+        <div class="form-group">
+          <label for="stopName">Stop Name</label>
+          <input type="text" id="stopName" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="sequence">Sequence (Order)</label>
+          <input type="number" id="sequence" name="sequence" value="<%= route.stops.length + 1 %>" required>
+        </div>
+        <div class="form-group">
+          <label for="lat">Latitude</label>
+          <input type="text" id="lat" name="lat" required placeholder="e.g., 12.9716">
+        </div>
+        <div class="form-group">
+          <label for="lng">Longitude</label>
+          <input type="text" id="lng" name="lng" required placeholder="e.g., 77.5946">
+        </div>
+        <button type="submit" class="auth-button">Add Stop</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Column 2: Current Stops -->
+  <div style="flex: 2; min-width: 400px;">
+    <div class="content-card">
+      <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Current Stops</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Seq.</th>
+            <th>Name</th>
+            <th>Coords</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!route.stops || route.stops.length === 0) { %>
+            <tr><td colspan="4" style="text-align: center;">No stops added yet.</td></tr>
+          <% } else { %>
+            <% route.stops.sort((a, b) => a.sequence - b.sequence).forEach(stop => { %>
+              <tr>
+                <td><%= stop.sequence %></td>
+                <td><%= stop.name %></td>
+                <td style="font-size: 0.8rem;"><%= stop.lat %>, <%= stop.lng %></td>
+                <td>
+                  <form action="/admin/routes/delete-stop/<%= route._id %>/<%= stop._id %>" method="POST">
+                    <button type="submit" class="btn" style="background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                      Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<%- include('../partials/footer') %>
+<!-- Initialize Feather Icons -->
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

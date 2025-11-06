@@ -1,0 +1,120 @@
+<%- include('../partials/header', { user: currentUser, page: 'dashboard' }) %>
+
+<div class="page-header">
+  <h1>Manage Route Requests</h1>
+  <p>Approve or reject pending requests from users.</p>
+</div>
+
+<div class="container">
+
+  <!-- 1. Pending Requests Table -->
+  <div class="content-card" style="margin-bottom: 2rem;">
+    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: #dc3545;">Pending Requests</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Current Route</th>
+          <th>Requested Route</th> <!-- ✅ NEW -->
+          <th>Requested Stop</th>  <!-- ✅ NEW -->
+          <th>Reason</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!requests.pending || requests.pending.length === 0) { %>
+          <tr><td colspan="6" style="text-align: center;">No pending requests.</td></tr>
+        <% } else { %>
+          <% requests.pending.forEach(req => { %>
+            <tr>
+              <td><%= req.user.name %> (<%= req.user.email %>)</td>
+              <td><%= req.currentRoute ? req.currentRoute.name : 'N/A' %></td>
+              <!-- ✅ NEW -->
+              <td style="font-weight: 600;"><%= req.requestedRoute ? req.requestedRoute.name : 'N/A' %></td>
+              <!-- ✅ NEW -->
+              <td style="font-weight: 600;"><%= req.requestedStopName %></td>
+              <td><%= req.reason %></td>
+              <td style="display: flex; gap: 0.5rem;">
+                <form action="/admin/requests/approve/<%= req._id %>" method="POST">
+                  <button type="submit" class="btn" style="background-color: #198754; color: white; border: none; cursor: pointer; padding: 0.5rem 1rem;">Approve</button>
+                </form>
+                <form action="/admin/requests/reject/<%= req._id %>" method="POST">
+                  <button type="submit" class="btn" style="background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 0.5rem 1rem;">Reject</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- 2. Approved Requests Table -->
+  <div class="content-card" style="margin-bottom: 2rem;">
+    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: #198754;">Approved History</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Current Route</th>
+          <th>Requested Route</th> <!-- ✅ NEW -->
+          <th>Requested Stop</th>  <!-- ✅ NEW -->
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!requests.approved || requests.approved.length === 0) { %>
+          <tr><td colspan="5" style="text-align: center;">No approved requests.</td></tr>
+        <% } else { %>
+          <% requests.approved.forEach(req => { %>
+            <tr>
+              <td><%= req.user.name %></td>
+              <td><%= req.currentRoute ? req.currentRoute.name : 'N/A' %></td>
+              <!-- ✅ NEW -->
+              <td><%= req.requestedRoute ? req.requestedRoute.name : 'N/A' %></td>
+              <!-- ✅ NEW -->
+              <td><%= req.requestedStopName %></td>
+              <td style="font-weight: 600; color: #198754;">Approved</td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- 3. Rejected Requests Table -->
+  <div class="content-card">
+    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: #6c757d;">Rejected History</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Current Route</th>
+          <th>Requested Route</th> <!-- ✅ NEW -->
+          <th>Requested Stop</th>  <!-- ✅ NEW -->
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!requests.rejected || requests.rejected.length === 0) { %>
+          <tr><td colspan="5" style="text-align: center;">No rejected requests.</td></tr>
+        <% } else { %>
+          <% requests.rejected.forEach(req => { %>
+            <tr>
+              <td><%= req.user.name %></td>
+              <td><%= req.currentRoute ? req.currentRoute.name : 'N/A' %></td>
+              <!-- ✅ NEW -->
+              <td><%= req.requestedRoute ? req.requestedRoute.name : 'N/A' %></td>
+              <!-- ✅ NEW -->
+              <td><%= req.requestedStopName %></td>
+              <td style="font-weight: 600; color: #dc3545;">Rejected</td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<%- include('../partials/footer') %>
